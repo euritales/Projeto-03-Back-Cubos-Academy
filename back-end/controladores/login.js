@@ -1,6 +1,7 @@
 const conexao = require("../conexao");
 const bcrypt = require("bcrypt");
-const jwb = require("jsonwebtoken");
+const segredo = require("../segredo");
+const jwt = require("jsonwebtoken");
 
 const login = async (req, res) => {
   const { email, senha } = req.body;
@@ -23,7 +24,7 @@ const login = async (req, res) => {
       return res.status(400).json("Email e senha nao conferem.");
     }
 
-    const token = jwb.sign({ id: usuario.id }, "senhaParaToken", {
+    const token = jwt.sign({ id: usuario.id }, segredo, {
       expiresIn: "1d",
     });
 
