@@ -3,8 +3,20 @@ const bcrypt = require("bcrypt");
 
 //const { emit } = require("../rotas");
 
-const listarUsuarios = async (req, res) => {};
-const obterUsuario = async (req, res) => {};
+const obterUsuario = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const queryConsultarUsuario = "select * from usuarios where email = $1";
+    const { rows: usuario } = await conexao.query(queryConsultarUsuario, [id]);
+    if (usuario.rowCount === 0) {
+      return res.status(404).json("Usuario não encontrado");
+    }
+
+    return res.status(200).json(usuario.rows[0]);
+  } catch (error) {
+    return res.status(400).json(error.message);
+  }
+};
 const cadastrarUsuario = async (req, res) => {
   const { nome, email, senha, nome_loja } = req.body;
 
@@ -53,12 +65,9 @@ const cadastrarUsuario = async (req, res) => {
   }
 };
 const atualizarUsuario = async (req, res) => {};
-const excluirUsuario = async (req, res) => {};
 
 module.exports = {
-  listarUsuarios,
   obterUsuario,
   cadastrarUsuario,
   atualizarUsuario,
-  excluirUsuario,
 };
