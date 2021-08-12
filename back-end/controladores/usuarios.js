@@ -1,10 +1,12 @@
 const conexao = require("../conexao");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 //const { emit } = require("../rotas");
 
 const obterUsuario = async (req, res) => {
   const { id } = req.params;
+  const { usuario } = req;
   try {
     const queryConsultarUsuario = "select * from usuarios where email = $1";
     const { rows: usuario } = await conexao.query(queryConsultarUsuario, [id]);
