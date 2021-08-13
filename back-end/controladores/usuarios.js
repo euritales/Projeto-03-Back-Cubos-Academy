@@ -2,19 +2,26 @@ const conexao = require("../conexao");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-//const { emit } = require("../rotas");
-
 const obterUsuario = async (req, res) => {
-  const { id } = req.params;
+  const { authorization } = req.headers;
   const { usuario } = req;
+
+  if (!authorization) {
+    return res.status(404).json("Token não informado.");
+  }
+
   try {
-    const queryConsultarUsuario = "select * from usuarios where email = $1";
-    const { rows: usuario } = await conexao.query(queryConsultarUsuario, [id]);
+    if (!authorization) {
+      return res.status(404).json("Token não informado.");
+    }
+    const queryConsultarUsuario = "select * from usuarios where id = $1";
+    const consultaUsuario = await conexao.query(queryConsultarUsuario, [
+      usuario.id,
+    ]);
     if (usuario.rowCount === 0) {
       return res.status(404).json("Usuario não encontrado");
     }
-
-    return res.status(200).json(usuario.rows[0]);
+    return res.status(200).json(consultaUsuario.rows[0]);
   } catch (error) {
     return res.status(400).json(error.message);
   }
@@ -66,7 +73,40 @@ const cadastrarUsuario = async (req, res) => {
     return res.status(error.message);
   }
 };
-const atualizarUsuario = async (req, res) => {};
+const atualizarUsuario = async (req, res) => {
+  const { nome, email, senha, nome_loja } = req.body;
+  const { id } = req.params;
+
+  if (!nome || !email || !senha || !nome_loja) {
+    return res
+      .status(404)
+      .json("Os campos 'nome, email, senha, nome_loja' são obrigatorios.");
+  }
+  try {
+    const queryVerificarEmail = "select * from usuarios where email = $1";
+    const verificarEmail = await conexao.query(queryVerificarEmail, [email]);
+
+    if (verificarEmail.rowCount > 1) {
+      return res.status(400).json("O email informado ja existe.");
+    }
+    const queryAtualizarUsuario =
+      "update usuarios set nome = $1, email = $2, senha = $3, nome_loja = $4 where id = $5";
+    const atualizacaoUsuario = await conexao.query(queryAtualizarUsuario, [
+      nome,
+      email,
+      senha,
+      nome_loja,
+      id,
+    ]);
+
+    if (atualizacaoUsuario.rowCount === 0) {
+      return res.status(404).json("Não foi possivel cadastrar o produto.");
+    }
+    return res.status(200).json("Usuario atualizado com sucesso.");
+  } catch (error) {
+    return res.status(400).json(error.message);
+  }
+};
 
 module.exports = {
   obterUsuario,

@@ -3,11 +3,11 @@ const segredo = require("../segredo");
 const jwt = require("jsonwebtoken");
 
 const listarProdutos = async (req, res) => {
-  const { categoria } = req.params;
+  const { categoria } = req.query;
   const { usuario } = req;
 
   try {
-    const listaProdutos = await conexao.query(
+    let listaProdutos = await conexao.query(
       "select * from produtos where usuario_id = $1",
       [usuario.id]
     );
@@ -17,7 +17,8 @@ const listarProdutos = async (req, res) => {
         [usuario.id, categoria]
       );
     }
-    return res.status(200).json(listaProdutos.rows);
+
+    return res.status(200).json(listaProdutos.rows[0]);
   } catch (error) {
     return res.status(400).json(error.message);
   }
@@ -26,10 +27,6 @@ const listarProdutos = async (req, res) => {
 const obterProduto = async (req, res) => {
   const { id } = req.params;
   const { usuario } = req;
-
-  if (!id) {
-    return res.status(400).json("O id deve ser passado.");
-  }
 
   try {
     const listaProdutos = await conexao.query(
