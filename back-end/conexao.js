@@ -6,6 +6,7 @@ const pool = new Pool({
   database: "market_cubos",
   password: "postgres",
   port: 5432,
+  //nova config
 });
 
 const query = (text, param) => {
