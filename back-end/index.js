@@ -7,4 +7,4 @@ app.use(express.json());
 
 app.use(rotas);
 
-app.listen(3000);
+app.listen(proccess.env.PORT || 3000);
